@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Promedio - Bimestre</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-calcular {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-calcular:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-calcular:active {
+            transform: translateY(0);
+        }
+
+        .resultado {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .resultado.aprobado {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .resultado.desaprobado {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .promedio-valor {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .estado-texto {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .info {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Calculadora de Promedio</h1>
+        <p class="subtitle">Ingresa tus 4 notas del bimestre</p>
+
+        <form id="formNotas">
+            <div class="form-group">
+                <label for="nota1">Nota 1:</label>
+                <input type="number" id="nota1" min="0" max="20" step="0.01" placeholder="Ingresa una nota entre 0 y 20">
+            </div>
+
+            <div class="form-group">
+                <label for="nota2">Nota 2:</label>
+                <input type="number" id="nota2" min="0" max="20" step="0.01" placeholder="Ingresa una nota entre 0 y 20">
+            </div>
+
+            <div class="form-group">
+                <label for="nota3">Nota 3:</label>
+                <input type="number" id="nota3" min="0" max="20" step="0.01" placeholder="Ingresa una nota entre 0 y 20">
+            </div>
+
+            <div class="form-group">
+                <label for="nota4">Nota 4:</label>
+                <input type="number" id="nota4" min="0" max="20" step="0.01" placeholder="Ingresa una nota entre 0 y 20">
+            </div>
+
+            <button type="submit" class="btn-calcular">Calcular Promedio</button>
+        </form>
+
+        <div class="error" id="error"></div>
+
+        <div class="resultado" id="resultado">
+            <div>Promedio Final</div>
+            <div class="promedio-valor" id="promedioValor">0.00</div>
+            <div class="estado-texto" id="estadoTexto"></div>
+        </div>
+
+        <div class="info">
+            ℹ️ <strong>Nota:</strong> El promedio se calcula sumando las 4 notas y dividiendo entre 4. Se aprueba con 13 o más puntos.
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('formNotas');
+        const resultado = document.getElementById('resultado');
+        const promedioValor = document.getElementById('promedioValor');
+        const estadoTexto = document.getElementById('estadoTexto');
+        const errorDiv = document.getElementById('error');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Ocultar mensajes previos
+            errorDiv.style.display = 'none';
+            resultado.style.display = 'none';
+
+            // Obtener valores de las notas
+            const nota1 = document.getElementById('nota1').value;
+            const nota2 = document.getElementById('nota2').value;
+            const nota3 = document.getElementById('nota3').value;
+            const nota4 = document.getElementById('nota4').value;
+
+            // Validar que todos los campos tengan datos
+            if (!nota1 || !nota2 || !nota3 || !nota4) {
+                mostrarError('⚠️ Por favor, completa todas las notas antes de calcular.');
+                return;
+            }
+
+            // Convertir a números
+            const n1 = parseFloat(nota1);
+            const n2 = parseFloat(nota2);
+            const n3 = parseFloat(nota3);
+            const n4 = parseFloat(nota4);
+
+            // Validar que las notas estén entre 0 y 20
+            if (!validarNota(n1) || !validarNota(n2) || !validarNota(n3) || !validarNota(n4)) {
+                mostrarError('⚠️ Todas las notas deben estar entre 0 y 20.');
+                return;
+            }
+
+            // Calcular promedio
+            const promedio = (n1 + n2 + n3 + n4) / 4;
+
+            // Mostrar resultado
+            mostrarResultado(promedio);
+        });
+
+        function validarNota(nota) {
+            return nota >= 0 && nota <= 20;
+        }
+
+        function mostrarError(mensaje) {
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+        }
+
+        function mostrarResultado(promedio) {
+            promedioValor.textContent = promedio.toFixed(2);
+            
+            // Determinar si está aprobado o desaprobado
+            if (promedio >= 13) {
+                resultado.className = 'resultado aprobado';
+                estadoTexto.textContent = '✅ APROBADO';
+            } else {
+                resultado.className = 'resultado desaprobado';
+                estadoTexto.textContent = '❌ DESAPROBADO';
+            }
+
+            resultado.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
